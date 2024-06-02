@@ -1,0 +1,31 @@
+apiVersion: argoproj.io/v1alpha1
+kind: ApplicationSet
+metadata:
+  name: dummy-app
+spec:
+  generators:
+    - list:
+        elements:
+          - env: dev
+          - env: prod
+  template:
+    metadata:
+      name: "dummy-app-{{ env }}"
+    spec:
+      destination:
+        name: ""
+        namespace: dummy-app
+        server: "https://kubernetes.default.svc"
+      source:
+        path: helm/dummy-chart
+        repoUrl: "https://github.com/hectorlopezv/nodejs-dummy-gitops.git"
+        targetRevision: HEAD
+        helm:
+          valueFiles:
+            - values.yaml
+            - envs/{{ env }}.yaml
+      sources: []
+      project: hector-lopez-cloudcamp-lab
+      syncPolicy:
+        syncOptions:
+          - CreateNamespace=true
